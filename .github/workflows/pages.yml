@@ -34,6 +34,8 @@ jobs:
           cp index.html app.js styles.css dist/
           cp data/power-codes.json dist/data/
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
