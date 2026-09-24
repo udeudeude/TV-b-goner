@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090909">
+  <title>TV-b-goner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">AUDIO → INFRARED</div>
+      <h1>TV-b-goner</h1>
+      <p class="lede">A living TV power-code sweep for an iPhone headphone adapter and audio-to-IR emitter.</p>
+    </header>
+
+    <section class="panel status-panel">
+      <div><span class="label">Database</span><strong id="dbStatus">loading…</strong></div>
+      <div><span class="label">Usable codes</span><strong id="codeCount">0</strong></div>
+      <div><span class="label">Source</span><strong id="sourceName">—</strong></div>
+    </section>
+
+    <section class="panel">
+      <label class="field">
+        <span>Emitter wiring</span>
+        <select id="emitterMode">
+          <option value="mono">1 LED / mono</option>
+          <option value="stereo">2 LED / stereo anti-phase</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Sweep</span>
+        <select id="sweepMode">
+          <option value="off">Explicit OFF only</option>
+          <option value="all">All power codes</option>
+          <option value="toggle">Power-toggle only</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Gap between codes</span>
+        <select id="gapMs">
+          <option value="90">90 ms</option>
+          <option value="140" selected>140 ms</option>
+          <option value="220">220 ms</option>
+        </select>
+      </label>
+
+      <div class="warning">
+        Set iPhone media volume to maximum. Start with <b>1 LED / mono</b> for the small emitter you already know works with EzRemote.
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="goButton" class="go" disabled>GO</button>
+      <button id="stopButton" class="stop" disabled>STOP</button>
+    </section>
+
+    <section class="panel progress-panel">
+      <div class="progress-head"><span id="progressText">Ready</span><span id="progressNumbers"></span></div>
+      <progress id="progress" value="0" max="1"></progress>
+      <div id="currentCode" class="current">—</div>
+    </section>
+
+    <section class="panel">
+      <details>
+        <summary>Import a Flipper IR file</summary>
+        <p>Add your own remote captures without changing the app. Power / Off entries are extracted in the browser.</p>
+        <input id="fileInput" type="file" accept=".ir,text/plain" multiple>
+      </details>
+      <details>
+        <summary>What this version understands</summary>
+        <p>Raw Flipper signals plus NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 parsed signals. Unsupported protocols are kept out of the sweep rather than guessed.</p>
+      </details>
+    </section>
+
+    <footer>
+      <span>Database refreshed from FlipperDevices IRDB at deploy time.</span>
+      <a href="https://github.com/udeudeude/TV-b-goner">source</a>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
