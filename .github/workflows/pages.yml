@@ -1,0 +1,42 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 8 * * 1"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get current IR database
+        run: git clone --depth 1 --branch dev https://github.com/flipperdevices/IRDB.git /tmp/irdb
+      - name: Build power-code database
+        run: node scripts/build-db.mjs /tmp/irdb/database/categories/TVs data/power-codes.json
+      - name: Assemble site
+        run: |
+          mkdir -p dist/data
+          cp index.html app.js styles.css dist/
+          cp data/power-codes.json dist/data/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
