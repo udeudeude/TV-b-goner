@@ -17,8 +17,9 @@
 
     <section class="panel status-panel">
       <div><span class="label">Database</span><strong id="dbStatus">loading…</strong></div>
-      <div><span class="label">Usable codes</span><strong id="codeCount">0</strong></div>
-      <div><span class="label">Source</span><strong id="sourceName">—</strong></div>
+      <div><span class="label">Available codes</span><strong id="databaseCount">0</strong></div>
+      <div><span class="label">This sweep</span><strong id="codeCount">0</strong></div>
+      <div><span class="label">Approx. time</span><strong id="estimate">—</strong></div>
     </section>
 
     <section class="panel">
@@ -33,8 +34,8 @@
       <label class="field">
         <span>Sweep</span>
         <select id="sweepMode">
+          <option value="all" selected>Smart: OFF first, then power-toggle</option>
           <option value="off">Explicit OFF only</option>
-          <option value="all">All power codes</option>
           <option value="toggle">Power-toggle only</option>
         </select>
       </label>
@@ -72,12 +73,12 @@
       </details>
       <details>
         <summary>What this version understands</summary>
-        <p>Raw Flipper signals plus NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 parsed signals. Unsupported protocols are kept out of the sweep rather than guessed.</p>
+        <p>Raw Flipper signals plus NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 parsed signals. Sony SIRC commands are repeated using their normal frame cadence. Unsupported protocols are kept out of the sweep rather than guessed.</p>
       </details>
     </section>
 
     <footer>
-      <span>Database refreshed from FlipperDevices IRDB at deploy time.</span>
+      <span>Database: <span id="sourceName">loading…</span></span>
       <a href="https://github.com/udeudeude/TV-b-goner">source</a>
     </footer>
   </main>
