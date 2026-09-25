@@ -8,22 +8,39 @@ It is designed around the hardware already proven with EzRemote:
 
 ## What it does
 
-- Synthesizes infrared mark/space patterns as 48 kHz, 16-bit-equivalent audio.
+- Synthesizes infrared mark/space patterns as 48 kHz audio.
 - Supports a **1 LED / mono** mode and a **2 LED / stereo anti-phase** mode.
 - Builds a fresh TV power-code database from the MIT-licensed [FlipperDevices IRDB](https://github.com/flipperdevices/IRDB) on every deployment and weekly thereafter.
 - Separates **explicit OFF** commands from ordinary **power-toggle** commands.
+- Defaults to a smart sweep: discrete OFF commands first, followed by toggle commands for broader compatibility.
 - Imports additional Flipper `.ir` files directly in the browser.
 - Currently transmits raw signals plus parsed NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 signals. Unsupported parsed protocols are skipped rather than approximated.
+
+## Reliability improvements
+
+The initial prototype created a new browser audio element for every IR code. That is vulnerable to iPhone/Safari autoplay restrictions after the first user gesture.
+
+The current version instead constructs the entire selected sweep as **one continuous WAV stream** and starts it with the single GO interaction. This also gives deterministic inter-code timing and makes STOP interrupt one stream rather than hundreds of separate play requests.
+
+Sony SIRC decoding now treats Flipper address/command fields as little-endian bytes and emits the normal three-frame repeated command. Automated tests cover this path.
+
+## Code ordering
+
+The database generator sorts candidates **before deduplication**. Identical commands therefore retain a representative from a high-priority modern TV brand when possible, rather than whichever directory happened to be scanned first.
+
+Current priority begins with Samsung, LG, TCL, Hisense, Sony, Vizio, ONN, Roku, Philips, Panasonic, Sharp, Toshiba, Insignia, Fire TV and Amazon. Discrete OFF commands always precede toggle commands.
+
+The browser preserves this database order rather than alphabetizing it again.
 
 ## Why the OFF-only mode exists
 
 A classic TV-B-Gone mostly emits power-toggle commands. A toggle can turn an already-off television back on.
 
-This project therefore keeps discrete `Off`, `Power_off`, and `Standby` signals separate. **Explicit OFF only** is the conservative sweep. **All power codes** also sends toggle codes for wider compatibility.
+This project therefore keeps discrete `Off`, `Power_off`, and `Standby` signals separate. **Explicit OFF only** is the conservative sweep. **Smart** sends those first and then continues into toggle codes for wider compatibility.
 
 ## Audio synthesis
 
-The audio path follows the same useful trick used by open-source audio IR transmitters: the requested IR carrier is represented by an audio tone at half the carrier frequency, with mark windows containing the tone and spaces containing silence. Stereo mode drives the two channels in opposite phase.
+The audio path follows the same useful technique used by open-source audio IR transmitters: the requested IR carrier is represented by an audio tone at half the carrier frequency, with mark windows containing the tone and spaces containing silence. Stereo mode drives the two channels in opposite phase.
 
 The implementation was independently written for this project after studying the architecture of [iodn/android-ir-blaster](https://github.com/iodn/android-ir-blaster).
 
@@ -35,11 +52,13 @@ The deployed database is generated from:
 
 The generator scans the TV catalog for `Power`, `Power_off`, `Off`, and `Standby` signals, deduplicates them, prioritizes discrete-off commands, and omits protocol formats that this transmitter does not yet encode.
 
-## Deployment
+Build statistics now include supported and unsupported counts **by protocol**, so protocol support can be expanded based on the actual missing coverage rather than guesswork.
 
-GitHub Actions builds and deploys the site to GitHub Pages on every push to `main`, and rebuilds the IR database every Monday.
+## Testing and deployment
 
-Expected Pages URL:
+The GitHub Actions deployment now runs the signal-generation test suite and JavaScript syntax checks before rebuilding the current IR database and deploying GitHub Pages.
+
+Live site:
 
 https://udeudeude.github.io/TV-b-goner/
 
