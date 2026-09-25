@@ -12,7 +12,7 @@ header { padding: 22px 4px 12px; }
 h1 { font-size: clamp(42px, 12vw, 74px); line-height: .95; margin: 10px 0 16px; letter-spacing: -.055em; }
 .lede { color: #bbb; line-height: 1.5; max-width: 56ch; }
 .panel { border: 1px solid #303030; border-radius: 16px; background: #111; padding: 16px; margin: 12px 0; }
-.status-panel { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.status-panel { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
 .status-panel div { min-width: 0; }
 .label, .field span { display: block; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
 .status-panel strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -32,7 +32,6 @@ summary { cursor: pointer; font-weight: 700; }
 details p { color: #aaa; line-height: 1.45; font-size: 13px; }
 footer { display: flex; justify-content: space-between; gap: 16px; padding: 18px 4px; color: #666; font-size: 11px; }
 footer a { color: #999; }
-@media (max-width: 520px) {
+@media (max-width: 620px) {
   .status-panel { grid-template-columns: 1fr 1fr; }
-  .status-panel div:last-child { grid-column: 1 / -1; }
 }
