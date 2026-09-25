@@ -24,6 +24,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Test signal generation
+        run: |
+          npm test
+          node --check app.js
+          node --check ir-core.js
       - name: Get current IR database
         run: git clone --depth 1 --branch dev https://github.com/flipperdevices/IRDB.git /tmp/irdb
       - name: Build power-code database
@@ -31,7 +36,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p dist/data
-          cp index.html app.js styles.css dist/
+          cp index.html app.js ir-core.js styles.css dist/
           cp data/power-codes.json dist/data/
       - uses: actions/configure-pages@v5
         with:
