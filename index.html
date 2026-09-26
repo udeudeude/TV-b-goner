@@ -18,8 +18,8 @@
     <section class="panel status-panel">
       <div><span class="label">Database</span><strong id="dbStatus">loading…</strong></div>
       <div><span class="label">Available codes</span><strong id="databaseCount">0</strong></div>
-      <div><span class="label">This sweep</span><strong id="codeCount">0</strong></div>
-      <div><span class="label">Approx. time</span><strong id="estimate">—</strong></div>
+      <div><span class="label">OFF-only</span><strong id="offCount">0</strong></div>
+      <div><span class="label">Other power</span><strong id="toggleCount">0</strong></div>
     </section>
 
     <section class="panel">
@@ -28,15 +28,6 @@
         <select id="emitterMode">
           <option value="mono">1 LED / mono</option>
           <option value="stereo">2 LED / stereo anti-phase</option>
-        </select>
-      </label>
-
-      <label class="field">
-        <span>Sweep</span>
-        <select id="sweepMode">
-          <option value="all" selected>Smart: OFF first, then power-toggle</option>
-          <option value="off">Explicit OFF only</option>
-          <option value="toggle">Power-toggle only</option>
         </select>
       </label>
 
@@ -54,8 +45,18 @@
       </div>
     </section>
 
-    <section class="actions">
-      <button id="goButton" class="go" disabled>GO</button>
+    <section class="actions transmit-actions">
+      <button id="offButton" class="go off-go" disabled>
+        <span>OFF ONLY</span>
+        <small id="offButtonMeta">—</small>
+      </button>
+      <button id="toggleButton" class="go toggle-go" disabled>
+        <span>OTHER POWER CODES</span>
+        <small id="toggleButtonMeta">—</small>
+      </button>
+    </section>
+
+    <section class="actions stop-actions">
       <button id="stopButton" class="stop" disabled>STOP</button>
     </section>
 
