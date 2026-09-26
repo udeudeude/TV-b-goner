@@ -15,6 +15,21 @@
       <p class="lede">A living TV power-code sweep for an iPhone headphone adapter and audio-to-IR emitter.</p>
     </header>
 
+    <section class="actions transmit-actions">
+      <button id="offButton" class="go off-go" disabled>
+        <span>OFF ONLY</span>
+        <small id="offButtonMeta">—</small>
+      </button>
+      <button id="toggleButton" class="go toggle-go" disabled>
+        <span>OTHER POWER CODES</span>
+        <small id="toggleButtonMeta">—</small>
+      </button>
+    </section>
+
+    <section class="actions stop-actions">
+      <button id="stopButton" class="stop" disabled>STOP</button>
+    </section>
+
     <section class="panel status-panel">
       <div><span class="label">Database</span><strong id="dbStatus">loading…</strong></div>
       <div><span class="label">Available codes</span><strong id="databaseCount">0</strong></div>
@@ -43,21 +58,6 @@
       <div class="warning">
         Set iPhone media volume to maximum. Start with <b>1 LED / mono</b> for the small emitter you already know works with EzRemote.
       </div>
-    </section>
-
-    <section class="actions transmit-actions">
-      <button id="offButton" class="go off-go" disabled>
-        <span>OFF ONLY</span>
-        <small id="offButtonMeta">—</small>
-      </button>
-      <button id="toggleButton" class="go toggle-go" disabled>
-        <span>OTHER POWER CODES</span>
-        <small id="toggleButtonMeta">—</small>
-      </button>
-    </section>
-
-    <section class="actions stop-actions">
-      <button id="stopButton" class="stop" disabled>STOP</button>
     </section>
 
     <section class="panel progress-panel">
