@@ -9,13 +9,15 @@ const $ = (id) => document.getElementById(id);
 const ui = {
   dbStatus: $("dbStatus"),
   databaseCount: $("databaseCount"),
-  codeCount: $("codeCount"),
-  estimate: $("estimate"),
+  offCount: $("offCount"),
+  toggleCount: $("toggleCount"),
+  offButton: $("offButton"),
+  toggleButton: $("toggleButton"),
+  offButtonMeta: $("offButtonMeta"),
+  toggleButtonMeta: $("toggleButtonMeta"),
   sourceName: $("sourceName"),
   emitterMode: $("emitterMode"),
-  sweepMode: $("sweepMode"),
   gapMs: $("gapMs"),
-  go: $("goButton"),
   stop: $("stopButton"),
   progress: $("progress"),
   progressText: $("progressText"),
@@ -32,10 +34,6 @@ let progressTimer = null;
 let currentTimeline = [];
 let currentList = [];
 
-function selectedCodes() {
-  return selectCodes(codes, ui.sweepMode.value);
-}
-
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "—";
   const rounded = Math.max(1, Math.round(seconds));
@@ -44,14 +42,24 @@ function formatDuration(seconds) {
   return minutes ? `${minutes}m ${remainder}s` : `${remainder}s`;
 }
 
+function listFor(mode) {
+  return selectCodes(codes, mode);
+}
+
 function refreshSummary() {
-  const list = selectedCodes();
+  const off = listFor("off");
+  const toggle = listFor("toggle");
+  const gap = Number(ui.gapMs.value);
+
   ui.databaseCount.textContent = codes.length.toLocaleString();
-  ui.codeCount.textContent = list.length.toLocaleString();
-  ui.estimate.textContent = list.length
-    ? formatDuration(estimateSweepSeconds(list, Number(ui.gapMs.value)))
-    : "—";
-  ui.go.disabled = !list.length || running;
+  ui.offCount.textContent = off.length.toLocaleString();
+  ui.toggleCount.textContent = toggle.length.toLocaleString();
+
+  ui.offButtonMeta.textContent = `${off.length.toLocaleString()} codes · ${formatDuration(estimateSweepSeconds(off, gap))}`;
+  ui.toggleButtonMeta.textContent = `${toggle.length.toLocaleString()} codes · ${formatDuration(estimateSweepSeconds(toggle, gap))}`;
+
+  ui.offButton.disabled = !off.length || running;
+  ui.toggleButton.disabled = !toggle.length || running;
 }
 
 function cleanupAudio() {
@@ -68,6 +76,7 @@ function cleanupAudio() {
     currentUrl = null;
   }
   currentAudio = null;
+  currentUrl = null;
   currentTimeline = [];
   currentList = [];
 }
@@ -101,11 +110,10 @@ function updateProgress() {
     return;
   }
 
-  const item = currentTimeline[index];
-  const code = item.entry;
+  const code = currentTimeline[index].entry;
   ui.progress.value = index + 1;
   ui.progressNumbers.textContent = `${index + 1} / ${currentTimeline.length}`;
-  ui.progressText.textContent = code.action === "off" ? "Explicit OFF" : "Power toggle";
+  ui.progressText.textContent = code.action === "off" ? "Explicit OFF" : "Other power code";
   ui.current.textContent = [
     code.brand,
     code.model,
@@ -114,17 +122,17 @@ function updateProgress() {
   ].filter(Boolean).join(" · ");
 }
 
-function runSweep() {
-  const list = selectedCodes();
+function runSweep(mode) {
+  const list = listFor(mode);
   if (!list.length || running) return;
 
   running = true;
-  ui.go.disabled = true;
+  refreshSummary();
   ui.stop.disabled = false;
   ui.progress.max = list.length;
   ui.progress.value = 0;
   ui.progressNumbers.textContent = `0 / ${list.length}`;
-  ui.progressText.textContent = "Building sweep";
+  ui.progressText.textContent = mode === "off" ? "Building OFF-only sweep" : "Building other power-code sweep";
   ui.current.textContent = "One continuous audio stream";
 
   const stereo = ui.emitterMode.value === "stereo";
@@ -152,9 +160,6 @@ function runSweep() {
   audio.onerror = () => finishSweep("Audio playback failed");
   progressTimer = setInterval(updateProgress, 80);
 
-  // Keep the only play() call inside the original GO interaction. iOS/Safari
-  // is much more reliable with one continuous user-initiated stream than
-  // hundreds of separately-created audio elements.
   const playPromise = audio.play();
   if (playPromise && typeof playPromise.catch === "function") {
     playPromise.catch((error) => {
@@ -188,9 +193,9 @@ async function loadDatabase() {
   refreshSummary();
 }
 
-ui.go.addEventListener("click", runSweep);
+ui.offButton.addEventListener("click", () => runSweep("off"));
+ui.toggleButton.addEventListener("click", () => runSweep("toggle"));
 ui.stop.addEventListener("click", stopSweep);
-ui.sweepMode.addEventListener("change", refreshSummary);
 ui.gapMs.addEventListener("change", refreshSummary);
 
 ui.fileInput.addEventListener("change", async (event) => {
