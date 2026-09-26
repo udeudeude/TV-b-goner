@@ -12,7 +12,7 @@ It is designed around the hardware already proven with EzRemote:
 - Supports a **1 LED / mono** mode and a **2 LED / stereo anti-phase** mode.
 - Builds a fresh TV power-code database from the MIT-licensed [FlipperDevices IRDB](https://github.com/flipperdevices/IRDB) on every deployment and weekly thereafter.
 - Separates **explicit OFF** commands from ordinary **power-toggle** commands.
-- Defaults to a smart sweep: discrete OFF commands first, followed by toggle commands for broader compatibility.
+- Provides separate one-tap sweeps for **explicit OFF-only** commands and **all other power codes**, so the safe subset can be tried independently before any toggle commands.
 - Imports additional Flipper `.ir` files directly in the browser.
 - Currently transmits raw signals plus parsed NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 signals. Unsupported parsed protocols are skipped rather than approximated.
 
@@ -36,7 +36,7 @@ The browser preserves this database order rather than alphabetizing it again.
 
 A classic TV-B-Gone mostly emits power-toggle commands. A toggle can turn an already-off television back on.
 
-This project therefore keeps discrete `Off`, `Power_off`, and `Standby` signals separate. **Explicit OFF only** is the conservative sweep. **Smart** sends those first and then continues into toggle codes for wider compatibility.
+This project therefore keeps discrete `Off`, `Power_off`, and `Standby` signals separate. The interface has one button for that conservative OFF-only set and a second button for the remaining power-toggle codes.
 
 ## Audio synthesis
 
