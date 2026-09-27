@@ -13,6 +13,7 @@ It is designed around the hardware already proven with EzRemote:
 - Builds a fresh TV power-code database from the MIT-licensed [FlipperDevices IRDB](https://github.com/flipperdevices/IRDB) on every deployment and weekly thereafter.
 - Separates **explicit OFF** commands from ordinary **power-toggle** commands.
 - Provides separate one-tap sweeps for **explicit OFF-only** commands and **all other power codes**, so the safe subset can be tried independently before any toggle commands.
+- Keeps the eight most recent transmitted codes visible, with individual **REPLAY** buttons after STOP, to help identify the code that made a TV react.
 - Imports additional Flipper `.ir` files directly in the browser.
 - Currently transmits raw signals plus parsed NEC, NECext, Samsung32, SIRC, SIRC15 and SIRC20 signals. Unsupported parsed protocols are skipped rather than approximated.
 
@@ -23,6 +24,8 @@ The initial prototype created a new browser audio element for every IR code. Tha
 The current version instead constructs the entire selected sweep as **one continuous WAV stream** and starts it with the single GO interaction. This also gives deterministic inter-code timing and makes STOP interrupt one stream rather than hundreds of separate play requests.
 
 Sony SIRC decoding now treats Flipper address/command fields as little-endian bytes and emits the normal three-frame repeated command. Automated tests cover this path.
+
+Flipper's NECext command is a full 16-bit value, and Samsung32 transmits its one-byte address twice followed by its command and inverted command. The signal encoders now preserve those wire formats, including for the Samsung discrete OFF command.
 
 ## Code ordering
 

@@ -23,6 +23,7 @@ const ui = {
   progressText: $("progressText"),
   progressNumbers: $("progressNumbers"),
   current: $("currentCode"),
+  recentCodes: $("recentCodes"),
   fileInput: $("fileInput"),
 };
 
@@ -33,6 +34,28 @@ let currentUrl = null;
 let progressTimer = null;
 let currentTimeline = [];
 let currentList = [];
+let recentCodes = [];
+let recentIndex = -1;
+let trackRecent = false;
+
+function refreshRecent() {
+  ui.recentCodes.replaceChildren();
+  for (const entry of recentCodes) {
+    const item = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = [entry.brand, entry.model, entry.name]
+      .filter(Boolean).join(" · ");
+
+    const replay = document.createElement("button");
+    replay.type = "button";
+    replay.textContent = "REPLAY";
+    replay.disabled = running;
+    replay.addEventListener("click", () => playEntries([entry], "Replaying code", false));
+
+    item.append(label, replay);
+    ui.recentCodes.append(item);
+  }
+}
 
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "—";
@@ -79,6 +102,7 @@ function cleanupAudio() {
   currentUrl = null;
   currentTimeline = [];
   currentList = [];
+  trackRecent = false;
 }
 
 function finishSweep(label, completed = false) {
@@ -92,6 +116,7 @@ function finishSweep(label, completed = false) {
   ui.progressText.textContent = label;
   ui.current.textContent = "—";
   refreshSummary();
+  refreshRecent();
 }
 
 function updateProgress() {
@@ -110,6 +135,15 @@ function updateProgress() {
     return;
   }
 
+  if (trackRecent && index !== recentIndex) {
+    recentIndex = index;
+    recentCodes = currentTimeline
+      .slice(Math.max(0, index - 7), index + 1)
+      .map(({ entry }) => entry)
+      .reverse();
+    refreshRecent();
+  }
+
   const code = currentTimeline[index].entry;
   ui.progress.value = index + 1;
   ui.progressNumbers.textContent = `${index + 1} / ${currentTimeline.length}`;
@@ -122,17 +156,22 @@ function updateProgress() {
   ].filter(Boolean).join(" · ");
 }
 
-function runSweep(mode) {
-  const list = listFor(mode);
+function playEntries(list, label, saveRecent) {
   if (!list.length || running) return;
 
   running = true;
+  trackRecent = saveRecent;
+  if (saveRecent) {
+    recentCodes = [];
+    recentIndex = -1;
+  }
   refreshSummary();
+  refreshRecent();
   ui.stop.disabled = false;
   ui.progress.max = list.length;
   ui.progress.value = 0;
   ui.progressNumbers.textContent = `0 / ${list.length}`;
-  ui.progressText.textContent = mode === "off" ? "Building OFF-only sweep" : "Building other power-code sweep";
+  ui.progressText.textContent = label;
   ui.current.textContent = "One continuous audio stream";
 
   const stereo = ui.emitterMode.value === "stereo";
@@ -156,21 +195,34 @@ function runSweep(mode) {
   currentTimeline = sweep.timeline;
   currentList = list;
 
-  audio.onended = () => finishSweep("Complete", true);
+  audio.onended = () => {
+    updateProgress();
+    finishSweep("Complete", true);
+  };
   audio.onerror = () => finishSweep("Audio playback failed");
   progressTimer = setInterval(updateProgress, 80);
 
   const playPromise = audio.play();
   if (playPromise && typeof playPromise.catch === "function") {
     playPromise.catch((error) => {
+      if (currentAudio !== audio) return;
       console.error(error);
       finishSweep("Playback was blocked");
     });
   }
 }
 
+function runSweep(mode) {
+  playEntries(
+    listFor(mode),
+    mode === "off" ? "Building OFF-only sweep" : "Building other power-code sweep",
+    true,
+  );
+}
+
 function stopSweep() {
   if (!running) return;
+  updateProgress();
   if (currentAudio) {
     try { currentAudio.pause(); } catch {}
   }

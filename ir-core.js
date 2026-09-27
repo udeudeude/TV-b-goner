@@ -43,7 +43,8 @@ export function encodeNec(entry) {
 
   let bytes;
   if (entry.protocol === "NECext") {
-    bytes = [address & 0xff, (address >> 8) & 0xff, command, (~command) & 0xff];
+    // Flipper NECext stores both the address and the command as 16-bit values.
+    bytes = [address & 0xff, (address >> 8) & 0xff, command, commandBytes[1] || 0];
   } else {
     const a = address & 0xff;
     bytes = [a, (~a) & 0xff, command, (~command) & 0xff];
@@ -58,7 +59,11 @@ export function encodeNec(entry) {
 export function encodeSamsung(entry) {
   const address = bytesLE(entry.address);
   const command = bytesLE(entry.command);
-  const bytes = [address[0] || 0, address[1] || 0, command[0] || 0, command[1] || 0];
+  const a = address[0] || 0;
+  const c = command[0] || 0;
+  // Flipper Samsung32 fields hold one byte each; the wire format repeats the
+  // address and complements the command.
+  const bytes = [a, a, c, (~c) & 0xff];
 
   return {
     frequency: 38_000,

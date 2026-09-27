@@ -27,6 +27,12 @@ button:disabled { opacity: .35; }
 progress { width: 100%; height: 14px; accent-color: #eee; }
 .progress-head { display: flex; justify-content: space-between; color: #aaa; font-size: 12px; margin-bottom: 10px; }
 .current { min-height: 38px; margin-top: 12px; color: #ddd; line-height: 1.4; }
+.recent-panel h2 { margin: 0 0 8px; font-size: 18px; }
+.recent-panel p { margin: 0 0 12px; color: #aaa; line-height: 1.45; font-size: 13px; }
+.recent-list { list-style: none; padding: 0; margin: 0; }
+.recent-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #303030; }
+.recent-list li span { min-width: 0; overflow-wrap: anywhere; font-size: 12px; line-height: 1.4; }
+.recent-list button { flex: none; min-height: 44px; padding: 0 12px; border: 1px solid #555; border-radius: 10px; background: #242424; color: #fff; font-size: 12px; letter-spacing: .04em; }
 details + details { margin-top: 14px; }
 summary { cursor: pointer; font-weight: 700; }
 details p { color: #aaa; line-height: 1.45; font-size: 13px; }

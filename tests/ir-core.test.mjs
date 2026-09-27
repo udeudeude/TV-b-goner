@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 
 import {
   buildSweepWav,
+  encodeNec,
+  encodeSamsung,
   encodeSirc,
   littleEndianValue,
   parseFlipper,
@@ -10,9 +12,38 @@ import {
   toSignal,
 } from "../ir-core.js";
 
+function pulseDistanceBytes(signal) {
+  const bitSpaces = signal.pattern.slice(3, -1).filter((_, i) => i % 2 === 0);
+  assert.equal(bitSpaces.length, 32);
+  return Array.from({ length: 4 }, (_, byte) => bitSpaces
+    .slice(byte * 8, byte * 8 + 8)
+    .reduce((value, space, bit) => value | (Number(space > 1000) << bit), 0));
+}
+
 test("Flipper little-endian values are decoded correctly", () => {
   assert.equal(littleEndianValue("15 00 00 00"), 0x15);
   assert.equal(littleEndianValue("34 12 00 00"), 0x1234);
+});
+
+test("NECext transmits Flipper's full 16-bit address and command", () => {
+  // Flipper's file-format example uses a command whose high byte is not ~0x5D.
+  const signal = encodeNec({
+    protocol: "NECext",
+    address: "EE 87 00 00",
+    command: "5D A0 00 00",
+  });
+  assert.deepEqual(pulseDistanceBytes(signal), [0xEE, 0x87, 0x5D, 0xA0]);
+});
+
+test("ordinary NEC still supplies the inverted address and command", () => {
+  const signal = encodeNec({ protocol: "NEC", address: "40 00 00 00", command: "12 00 00 00" });
+  assert.deepEqual(pulseDistanceBytes(signal), [0x40, 0xBF, 0x12, 0xED]);
+});
+
+test("Samsung32 sends the repeated address and inverted command", () => {
+  // The deployed database's Samsung Power_off is address 07, command 98.
+  const signal = encodeSamsung({ address: "07 00 00 00", command: "98 00 00 00" });
+  assert.deepEqual(pulseDistanceBytes(signal), [0x07, 0x07, 0x98, 0x67]);
 });
 
 test("Sony SIRC power command uses the Flipper command byte and repeats three frames", () => {
