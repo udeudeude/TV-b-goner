@@ -9,7 +9,7 @@ It is designed around the hardware already proven with EzRemote:
 ## What it does
 
 - Synthesizes infrared mark/space patterns as 48 kHz audio.
-- Supports a **1 LED / mono** mode and a **2 LED / stereo anti-phase** mode.
+- Defaults to **stereo anti-phase**, the arrangement used by simple two-LED EzRemote-compatible audio-jack transmitters. An adapter-specific mono output is also available.
 - Builds a fresh TV power-code database from the MIT-licensed [FlipperDevices IRDB](https://github.com/flipperdevices/IRDB) on every deployment and weekly thereafter.
 - Separates **explicit OFF** commands from ordinary **power-toggle** commands.
 - Provides separate one-tap sweeps for **explicit OFF-only** commands and **all other power codes**, so the safe subset can be tried independently before any toggle commands.
@@ -43,7 +43,9 @@ This project therefore keeps discrete `Off`, `Power_off`, and `Standby` signals 
 
 ## Audio synthesis
 
-The audio path follows the same useful technique used by open-source audio IR transmitters: the requested IR carrier is represented by an audio tone at half the carrier frequency, with mark windows containing the tone and spaces containing silence. Stereo mode drives the two channels in opposite phase.
+The audio path follows the technique used by simple two-LED audio-jack IR transmitters: the requested IR carrier is represented by an audio tone at half the carrier frequency, with mark windows containing the tone and spaces containing silence. Stereo mode drives the two channels in opposite phase. The opposing LEDs alternately emit light, restoring the full carrier frequency. A bare single LED driven from the mono output emits only once per audio cycle, so the mono output requires adapter electronics that double the carrier to work with ordinary IR receivers.
+
+An [EzRemote-compatible two-LED wiring example](https://fzware.com/diy-audio-jack-ir-blaster.html) documents the opposite-phase stereo channels and anti-parallel LEDs. The exact wiring inside the user's small emitter has not been verified, so a hardware test is still needed.
 
 The implementation was independently written for this project after studying the architecture of [iodn/android-ir-blaster](https://github.com/iodn/android-ir-blaster).
 
@@ -67,7 +69,7 @@ https://udeudeude.github.io/TV-b-goner/
 
 ## Hardware note
 
-Start with **1 LED / mono** and maximum media volume for the small emitter already known to work with EzRemote. The larger unknown IR emitter may require different drive electronics.
+Start with **stereo anti-phase** and maximum media volume for the small emitter already known to work with EzRemote. The larger unknown IR emitter may require different drive electronics.
 
 ## License
 

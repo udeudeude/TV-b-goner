@@ -115,4 +115,12 @@ test("sweep is emitted as one stereo WAV with a timeline", async () => {
   assert.equal(String.fromCharCode(...new Uint8Array(view.buffer, 0, 4)), "RIFF");
   assert.equal(view.getUint16(22, true), 2);
   assert.equal(view.getUint32(24, true), 48_000);
+
+  const firstMark = Math.round(sweep.timeline[0].start * 48_000);
+  const samples = Array.from({ length: 20 }, (_, i) => [
+    view.getInt16(44 + (firstMark + i) * 4, true),
+    view.getInt16(46 + (firstMark + i) * 4, true),
+  ]);
+  assert.ok(samples.some(([left]) => left !== 0));
+  assert.ok(samples.every(([left, right]) => left === -right));
 });

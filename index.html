@@ -41,8 +41,8 @@
       <label class="field">
         <span>Emitter wiring</span>
         <select id="emitterMode">
-          <option value="mono">1 LED / mono</option>
-          <option value="stereo">2 LED / stereo anti-phase</option>
+          <option value="stereo" selected>EzRemote-style / stereo anti-phase</option>
+          <option value="mono">Mono / adapter-specific</option>
         </select>
       </label>
 
@@ -56,7 +56,7 @@
       </label>
 
       <div class="warning">
-        Set iPhone media volume to maximum. Start with <b>1 LED / mono</b> for the small emitter you already know works with EzRemote.
+        Set iPhone media volume to maximum. Start with <b>stereo anti-phase</b> for the small emitter that works with EzRemote. The mono option is for adapters with their own carrier-doubling electronics; a bare single LED on one audio channel emits at half the intended carrier frequency.
       </div>
     </section>
 
