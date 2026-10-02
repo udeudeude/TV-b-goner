@@ -15,7 +15,7 @@ It is designed around the hardware already proven with EzRemote:
 - Lets you select a TV brand (such as LG) before either sweep. Shared signals retain all brands from the source database, so a brand filter does not lose codes assigned a different representative in the full sweep.
 - Puts familiar U.S. TV brands at the top of the picker, followed by the complete alphabetical list (including those brands again).
 - Offers a top-ten U.S. brand sweep covering Samsung, LG, Vizio, TCL, Hisense, Sony, Insignia, Philips, Toshiba, and Sharp, regardless of the picker selection. It sends each distinct signal once, with discrete OFF codes first.
-- Turns the top-ten button into a filling progress bar with current-code count and percentage during its sweep; it returns to the normal button on stop or completion.
+- Turns each sweep button into a filling progress bar with current-code count and percentage while it runs; it returns to the normal button on stop or completion.
 - Provides separate one-tap sweeps for **explicit OFF-only** commands and **all other power codes**, so the safe subset can be tried independently before any toggle commands.
 - Keeps the eight most recent transmitted codes visible, with individual **REPLAY** buttons after STOP, to help identify the code that made a TV react.
 - Imports additional Flipper `.ir` files directly in the browser.

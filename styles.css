@@ -66,8 +66,9 @@ footer a { color: #999; }
 .stop-actions { grid-template-columns: 1fr; margin-top: -6px; }
 .stop-actions .stop { min-height: 64px; }
 .toggle-go { background: #d8d8d8; }
-.top-brands-go { position: relative; overflow: hidden; background: #e7e7e7; }
-.top-brands-go::before {
+.top-brands-go { background: #e7e7e7; }
+.transmit-actions .go { position: relative; overflow: hidden; }
+.transmit-actions .go::before {
   content: "";
   position: absolute;
   inset: 0 auto 0 0;
@@ -75,8 +76,8 @@ footer a { color: #999; }
   background: #96d5a1;
   transition: width .12s linear;
 }
-.top-brands-go > * { position: relative; z-index: 1; }
-.top-brands-go.is-running:disabled { opacity: 1; }
+.transmit-actions .go > * { position: relative; z-index: 1; }
+.transmit-actions .go.is-running:disabled { opacity: 1; }
 @media (max-width: 520px) {
   .transmit-actions { grid-template-columns: 1fr; }
   .transmit-actions button { min-height: 88px; }

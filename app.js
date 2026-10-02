@@ -15,9 +15,11 @@ const ui = {
   offCount: $("offCount"),
   toggleCount: $("toggleCount"),
   offButton: $("offButton"),
+  offButtonLabel: $("offButtonLabel"),
   topBrandsButton: $("topBrandsButton"),
   topBrandsButtonLabel: $("topBrandsButtonLabel"),
   toggleButton: $("toggleButton"),
+  toggleButtonLabel: $("toggleButtonLabel"),
   offButtonMeta: $("offButtonMeta"),
   topBrandsButtonMeta: $("topBrandsButtonMeta"),
   toggleButtonMeta: $("toggleButtonMeta"),
@@ -32,6 +34,11 @@ const ui = {
   recentCodes: $("recentCodes"),
   fileInput: $("fileInput"),
 };
+const progressButtonCopy = new Map([
+  [ui.offButton, { label: ui.offButtonLabel, meta: ui.offButtonMeta, idle: "OFF ONLY", running: "SENDING OFF" }],
+  [ui.topBrandsButton, { label: ui.topBrandsButtonLabel, meta: ui.topBrandsButtonMeta, idle: "TOP 10 U.S. BRANDS", running: "SENDING TOP 10" }],
+  [ui.toggleButton, { label: ui.toggleButtonLabel, meta: ui.toggleButtonMeta, idle: "OTHER POWER CODES", running: "SENDING POWER" }],
+]);
 
 let codes = [];
 let running = false;
@@ -48,19 +55,21 @@ let activeProgressButton = null;
 
 function showButtonProgress(codeNumber, total) {
   if (!activeProgressButton) return;
+  const copy = progressButtonCopy.get(activeProgressButton);
   const percent = currentDuration
     ? Math.max(0, Math.min(100, Math.round(100 * (currentAudio?.currentTime || 0) / currentDuration)))
     : 0;
   activeProgressButton.style.setProperty("--sweep-progress", `${percent}%`);
-  ui.topBrandsButtonLabel.textContent = "SENDING TOP 10";
-  ui.topBrandsButtonMeta.textContent = `${codeNumber} / ${total} codes · ${percent}%`;
+  copy.label.textContent = copy.running;
+  copy.meta.textContent = `${codeNumber} / ${total} codes · ${percent}%`;
 }
 
 function resetButtonProgress() {
   if (!activeProgressButton) return;
+  const copy = progressButtonCopy.get(activeProgressButton);
   activeProgressButton.classList.remove("is-running");
   activeProgressButton.style.removeProperty("--sweep-progress");
-  ui.topBrandsButtonLabel.textContent = "TOP 10 U.S. BRANDS";
+  copy.label.textContent = copy.idle;
   activeProgressButton = null;
 }
 
@@ -282,6 +291,7 @@ function runSweep(mode) {
     listFor(mode),
     mode === "off" ? "Building OFF-only sweep" : "Building other power-code sweep",
     true,
+    mode === "off" ? ui.offButton : ui.toggleButton,
   );
 }
 
