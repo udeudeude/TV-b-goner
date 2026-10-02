@@ -17,6 +17,10 @@ h1 { font-size: clamp(42px, 12vw, 74px); line-height: .95; margin: 10px 0 16px; 
 .label, .field span { display: block; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
 .status-panel strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .field { display: block; margin: 0 0 14px; }
+.brand-picker { margin: 18px 0 12px; }
+.brand-picker .field { margin-bottom: 8px; }
+.brand-picker p { margin: 7px 2px 0; color: #aaa; font-size: 12px; line-height: 1.4; }
+.brand-picker + .transmit-actions { margin-top: 12px; }
 select, input[type=file] { width: 100%; font: inherit; color: #fff; background: #1a1a1a; border: 1px solid #3b3b3b; border-radius: 10px; padding: 12px; }
 .warning { color: #cfcfcf; border-left: 3px solid #8d8d8d; padding: 8px 10px; line-height: 1.45; font-size: 13px; }
 .actions { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin: 18px 0; }

@@ -12,6 +12,7 @@ It is designed around the hardware already proven with EzRemote:
 - Defaults to **stereo anti-phase**, the arrangement used by simple two-LED EzRemote-compatible audio-jack transmitters. An adapter-specific mono output is also available.
 - Builds a fresh TV power-code database from the MIT-licensed [FlipperDevices IRDB](https://github.com/flipperdevices/IRDB) on every deployment and weekly thereafter.
 - Separates **explicit OFF** commands from ordinary **power-toggle** commands.
+- Lets you select a TV brand (such as LG) before either sweep. Shared signals retain all brands from the source database, so a brand filter does not lose codes assigned a different representative in the full sweep.
 - Provides separate one-tap sweeps for **explicit OFF-only** commands and **all other power codes**, so the safe subset can be tried independently before any toggle commands.
 - Keeps the eight most recent transmitted codes visible, with individual **REPLAY** buttons after STOP, to help identify the code that made a TV react.
 - Imports additional Flipper `.ir` files directly in the browser.
@@ -29,7 +30,7 @@ Flipper's NECext command is a full 16-bit value, and Samsung32 transmits its one
 
 ## Code ordering
 
-The database generator sorts candidates **before deduplication**. Identical commands therefore retain a representative from a high-priority modern TV brand when possible, rather than whichever directory happened to be scanned first.
+The database generator sorts candidates **before deduplication**. Identical commands retain a representative from a high-priority modern TV brand, plus the brands and model names of their other matches. OFF and toggle classifications are deduplicated separately because the same signal can have different functions on different brands.
 
 Current priority begins with Samsung, LG, TCL, Hisense, Sony, Vizio, ONN, Roku, Philips, Panasonic, Sharp, Toshiba, Insignia, Fire TV and Amazon. Discrete OFF commands always precede toggle commands.
 

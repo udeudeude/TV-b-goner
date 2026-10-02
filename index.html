@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#090909">
   <title>TV-b-goner</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=brand1">
 </head>
 <body>
   <main>
@@ -14,6 +14,14 @@
       <h1>TV-b-goner</h1>
       <p class="lede">A living TV power-code sweep for an iPhone headphone adapter and audio-to-IR emitter.</p>
     </header>
+
+    <section class="brand-picker">
+      <label class="field" for="brandSelect">TV brand</label>
+      <select id="brandSelect" disabled>
+        <option value="">All brands</option>
+      </select>
+      <p>Choose LG or another brand to try its known codes. If OFF ONLY has no codes, try OTHER POWER CODES; those may toggle a TV back on.</p>
+    </section>
 
     <section class="actions transmit-actions">
       <button id="offButton" class="go off-go" disabled>
@@ -32,7 +40,7 @@
 
     <section class="panel status-panel">
       <div><span class="label">Database</span><strong id="dbStatus">loading…</strong></div>
-      <div><span class="label">Available codes</span><strong id="databaseCount">0</strong></div>
+      <div><span class="label">Selected codes</span><strong id="databaseCount">0</strong></div>
       <div><span class="label">OFF-only</span><strong id="offCount">0</strong></div>
       <div><span class="label">Other power</span><strong id="toggleCount">0</strong></div>
     </section>
@@ -89,6 +97,6 @@
       <a href="https://github.com/udeudeude/TV-b-goner">source</a>
     </footer>
   </main>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=brand1"></script>
 </body>
 </html>

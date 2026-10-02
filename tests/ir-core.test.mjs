@@ -1,5 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { buildDatabase } from "../scripts/build-db.mjs";
 
 import {
   buildSweepWav,
@@ -75,6 +79,44 @@ test("selected codes preserve database priority order", () => {
 
   assert.deepEqual(selectCodes(codes, "all").map((x) => x.brand), ["Samsung", "Samsung", "LG"]);
   assert.equal(selectCodes(codes, "off").length, 1);
+});
+
+test("brand filter includes shared signals and displays that brand's model", () => {
+  const codes = [
+    {
+      type: "parsed", protocol: "NEC", address: "01", command: "02", action: "toggle",
+      brand: "Samsung", model: "Samsung model", name: "Power",
+      brands: ["Samsung", "LG"],
+      brandDetails: { Samsung: { model: "Samsung model", name: "Power" }, LG: { model: "LG model", name: "Power" } },
+    },
+    { type: "parsed", protocol: "NEC", address: "01", command: "03", action: "off", brand: "Samsung" },
+  ];
+
+  assert.deepEqual(selectCodes(codes, "toggle", "LG").map((x) => [x.brand, x.model]), [["LG", "LG model"]]);
+  assert.equal(selectCodes(codes, "off", "LG").length, 0);
+  assert.equal(selectCodes(codes, "all", "Samsung").length, 2);
+});
+
+test("database builder retains shared brands without mixing OFF and toggle", async () => {
+  const root = mkdtempSync(join(tmpdir(), "tv-b-goner-"));
+  const input = join(root, "TVs");
+  const output = join(root, "codes.json");
+  const signal = (name, command) => `name: ${name}\ntype: parsed\nprotocol: NEC\naddress: 01 00 00 00\ncommand: ${command} 00 00 00\n`;
+  try {
+    mkdirSync(join(input, "Samsung"), { recursive: true });
+    mkdirSync(join(input, "LG"), { recursive: true });
+    writeFileSync(join(input, "Samsung", "S.ir"), signal("Power", "02") + signal("Off", "03"));
+    writeFileSync(join(input, "LG", "L.ir"), signal("Power", "02") + signal("Power", "03"));
+    await buildDatabase(input, output);
+    const { codes } = JSON.parse(readFileSync(output, "utf8"));
+
+    assert.equal(codes.length, 3);
+    assert.deepEqual(selectCodes(codes, "toggle", "LG").map((x) => x.model), ["L", "L"]);
+    assert.equal(selectCodes(codes, "off", "LG").length, 0);
+    assert.equal(selectCodes(codes, "off", "Samsung").length, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("Flipper import extracts power commands only", () => {

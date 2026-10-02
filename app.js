@@ -3,11 +3,12 @@ import {
   estimateSweepSeconds,
   parseFlipper,
   selectCodes,
-} from "./ir-core.js";
+} from "./ir-core.js?v=brand1";
 
 const $ = (id) => document.getElementById(id);
 const ui = {
   dbStatus: $("dbStatus"),
+  brandSelect: $("brandSelect"),
   databaseCount: $("databaseCount"),
   offCount: $("offCount"),
   toggleCount: $("toggleCount"),
@@ -66,7 +67,19 @@ function formatDuration(seconds) {
 }
 
 function listFor(mode) {
-  return selectCodes(codes, mode);
+  return selectCodes(codes, mode, ui.brandSelect.value);
+}
+
+function refreshBrands() {
+  const previous = ui.brandSelect.value;
+  const brands = [...new Set(codes.flatMap((code) => code.brands || [code.brand]).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+  ui.brandSelect.replaceChildren(new Option("All brands", ""));
+  for (const brand of brands) {
+    ui.brandSelect.add(new Option(brand.replaceAll("_", " "), brand));
+  }
+  ui.brandSelect.value = brands.includes(previous) ? previous : "";
+  ui.brandSelect.disabled = running || !brands.length;
 }
 
 function refreshSummary() {
@@ -74,7 +87,7 @@ function refreshSummary() {
   const toggle = listFor("toggle");
   const gap = Number(ui.gapMs.value);
 
-  ui.databaseCount.textContent = codes.length.toLocaleString();
+  ui.databaseCount.textContent = listFor("all").length.toLocaleString();
   ui.offCount.textContent = off.length.toLocaleString();
   ui.toggleCount.textContent = toggle.length.toLocaleString();
 
@@ -83,6 +96,7 @@ function refreshSummary() {
 
   ui.offButton.disabled = !off.length || running;
   ui.toggleButton.disabled = !toggle.length || running;
+  ui.brandSelect.disabled = running || !codes.length;
 }
 
 function cleanupAudio() {
@@ -242,12 +256,14 @@ async function loadDatabase() {
     ui.dbStatus.textContent = "imports only";
     ui.sourceName.textContent = "local .ir files";
   }
+  refreshBrands();
   refreshSummary();
 }
 
 ui.offButton.addEventListener("click", () => runSweep("off"));
 ui.toggleButton.addEventListener("click", () => runSweep("toggle"));
 ui.stop.addEventListener("click", stopSweep);
+ui.brandSelect.addEventListener("change", refreshSummary);
 ui.gapMs.addEventListener("change", refreshSummary);
 
 ui.fileInput.addEventListener("change", async (event) => {
@@ -258,6 +274,7 @@ ui.fileInput.addEventListener("change", async (event) => {
     added += parsed.length;
   }
   ui.dbStatus.textContent = `ready + ${added} imported`;
+  refreshBrands();
   refreshSummary();
 });
 

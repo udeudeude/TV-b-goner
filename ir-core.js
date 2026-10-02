@@ -110,12 +110,16 @@ export function toSignal(entry) {
   return null;
 }
 
-export function selectCodes(codes, mode = "all") {
+export function selectCodes(codes, mode = "all", brand = "") {
   return codes.filter((code) => {
     if (!toSignal(code)) return false;
+    if (brand && !(code.brands || [code.brand]).includes(brand)) return false;
     if (mode === "off") return code.action === "off";
     if (mode === "toggle") return code.action === "toggle";
     return true;
+  }).map((code) => {
+    if (!brand || !code.brandDetails?.[brand]) return code;
+    return { ...code, brand, ...code.brandDetails[brand] };
   });
 }
 
