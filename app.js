@@ -16,6 +16,7 @@ const ui = {
   toggleCount: $("toggleCount"),
   offButton: $("offButton"),
   topBrandsButton: $("topBrandsButton"),
+  topBrandsButtonLabel: $("topBrandsButtonLabel"),
   toggleButton: $("toggleButton"),
   offButtonMeta: $("offButtonMeta"),
   topBrandsButtonMeta: $("topBrandsButtonMeta"),
@@ -39,9 +40,29 @@ let currentUrl = null;
 let progressTimer = null;
 let currentTimeline = [];
 let currentList = [];
+let currentDuration = 0;
 let recentCodes = [];
 let recentIndex = -1;
 let trackRecent = false;
+let activeProgressButton = null;
+
+function showButtonProgress(codeNumber, total) {
+  if (!activeProgressButton) return;
+  const percent = currentDuration
+    ? Math.max(0, Math.min(100, Math.round(100 * (currentAudio?.currentTime || 0) / currentDuration)))
+    : 0;
+  activeProgressButton.style.setProperty("--sweep-progress", `${percent}%`);
+  ui.topBrandsButtonLabel.textContent = "SENDING TOP 10";
+  ui.topBrandsButtonMeta.textContent = `${codeNumber} / ${total} codes · ${percent}%`;
+}
+
+function resetButtonProgress() {
+  if (!activeProgressButton) return;
+  activeProgressButton.classList.remove("is-running");
+  activeProgressButton.style.removeProperty("--sweep-progress");
+  ui.topBrandsButtonLabel.textContent = "TOP 10 U.S. BRANDS";
+  activeProgressButton = null;
+}
 
 function refreshRecent() {
   ui.recentCodes.replaceChildren();
@@ -116,6 +137,9 @@ function refreshSummary() {
   ui.topBrandsButton.disabled = !topBrands.length || running;
   ui.toggleButton.disabled = !toggle.length || running;
   ui.brandSelect.disabled = running || !codes.length;
+  if (activeProgressButton && currentList.length) {
+    showButtonProgress(ui.progress.value, currentList.length);
+  }
 }
 
 function cleanupAudio() {
@@ -135,6 +159,7 @@ function cleanupAudio() {
   currentUrl = null;
   currentTimeline = [];
   currentList = [];
+  currentDuration = 0;
   trackRecent = false;
 }
 
@@ -144,6 +169,7 @@ function finishSweep(label, completed = false) {
     ui.progressNumbers.textContent = `${currentList.length} / ${currentList.length}`;
   }
   cleanupAudio();
+  resetButtonProgress();
   running = false;
   ui.stop.disabled = true;
   ui.progressText.textContent = label;
@@ -165,6 +191,7 @@ function updateProgress() {
   if (index < 0) {
     ui.progressText.textContent = "Priming audio output";
     ui.progressNumbers.textContent = `0 / ${currentTimeline.length}`;
+    showButtonProgress(0, currentTimeline.length);
     return;
   }
 
@@ -180,6 +207,7 @@ function updateProgress() {
   const code = currentTimeline[index].entry;
   ui.progress.value = index + 1;
   ui.progressNumbers.textContent = `${index + 1} / ${currentTimeline.length}`;
+  showButtonProgress(index + 1, currentTimeline.length);
   ui.progressText.textContent = code.action === "off" ? "Explicit OFF" : "Other power code";
   ui.current.textContent = [
     code.brand,
@@ -189,10 +217,12 @@ function updateProgress() {
   ].filter(Boolean).join(" · ");
 }
 
-function playEntries(list, label, saveRecent) {
+function playEntries(list, label, saveRecent, progressButton = null) {
   if (!list.length || running) return;
 
   running = true;
+  activeProgressButton = progressButton;
+  if (progressButton) progressButton.classList.add("is-running");
   trackRecent = saveRecent;
   if (saveRecent) {
     recentCodes = [];
@@ -227,6 +257,8 @@ function playEntries(list, label, saveRecent) {
   currentUrl = url;
   currentTimeline = sweep.timeline;
   currentList = list;
+  currentDuration = sweep.duration;
+  showButtonProgress(0, list.length);
 
   audio.onended = () => {
     updateProgress();
@@ -281,7 +313,7 @@ async function loadDatabase() {
 
 ui.offButton.addEventListener("click", () => runSweep("off"));
 ui.topBrandsButton.addEventListener("click", () => playEntries(
-  selectPopularUsCodes(codes), "Building top 10 U.S. brands sweep", true,
+  selectPopularUsCodes(codes), "Building top 10 U.S. brands sweep", true, ui.topBrandsButton,
 ));
 ui.toggleButton.addEventListener("click", () => runSweep("toggle"));
 ui.stop.addEventListener("click", stopSweep);
