@@ -9,6 +9,10 @@ export const SUPPORTED_PROTOCOLS = new Set([
   "SIRC15",
   "SIRC20",
 ]);
+export const POPULAR_US_BRANDS = [
+  "Samsung", "LG", "Vizio", "TCL", "Hisense", "Sony",
+  "Insignia", "Philips", "Toshiba", "Sharp",
+];
 
 export function bytesLE(s) {
   return (s || "")
@@ -121,6 +125,30 @@ export function selectCodes(codes, mode = "all", brand = "") {
     if (!brand || !code.brandDetails?.[brand]) return code;
     return { ...code, brand, ...code.brandDetails[brand] };
   });
+}
+
+export function selectPopularUsCodes(codes) {
+  const brands = new Set(POPULAR_US_BRANDS);
+  const seenSignals = new Set();
+  const selected = [];
+
+  // Imported codes may come after the database's toggle entries.
+  for (const code of [
+    ...codes.filter((entry) => entry.action === "off"),
+    ...codes.filter((entry) => entry.action !== "off"),
+  ]) {
+    const brand = (code.brands || [code.brand]).find((name) => brands.has(name));
+    if (!brand) continue;
+    const signal = toSignal(code);
+    if (!signal?.pattern.length) continue;
+    const key = `${signal.frequency}|${signal.pattern.join(",")}`;
+    if (seenSignals.has(key)) continue;
+    seenSignals.add(key);
+    selected.push(brand === code.brand ? code : {
+      ...code, brand, ...code.brandDetails?.[brand],
+    });
+  }
+  return selected;
 }
 
 export function parseFlipper(text, source = "import") {

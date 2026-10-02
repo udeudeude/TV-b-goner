@@ -2,14 +2,12 @@ import {
   buildSweepWav,
   estimateSweepSeconds,
   parseFlipper,
+  POPULAR_US_BRANDS,
   selectCodes,
-} from "./ir-core.js?v=brand2";
+  selectPopularUsCodes,
+} from "./ir-core.js?v=top10";
 
 const $ = (id) => document.getElementById(id);
-const popularUsBrands = [
-  "Samsung", "LG", "Vizio", "TCL", "Hisense", "Sony",
-  "ONN", "Insignia", "Roku", "Philips", "Toshiba", "Sharp",
-];
 const ui = {
   dbStatus: $("dbStatus"),
   brandSelect: $("brandSelect"),
@@ -17,8 +15,10 @@ const ui = {
   offCount: $("offCount"),
   toggleCount: $("toggleCount"),
   offButton: $("offButton"),
+  topBrandsButton: $("topBrandsButton"),
   toggleButton: $("toggleButton"),
   offButtonMeta: $("offButtonMeta"),
+  topBrandsButtonMeta: $("topBrandsButtonMeta"),
   toggleButtonMeta: $("toggleButtonMeta"),
   sourceName: $("sourceName"),
   emitterMode: $("emitterMode"),
@@ -80,7 +80,7 @@ function refreshBrands() {
     .sort((a, b) => a.localeCompare(b));
   const popular = document.createElement("optgroup");
   popular.label = "Popular in the U.S.";
-  for (const brand of popularUsBrands) {
+  for (const brand of POPULAR_US_BRANDS) {
     if (brands.includes(brand)) popular.append(new Option(brand.replaceAll("_", " "), brand));
   }
 
@@ -101,6 +101,7 @@ function refreshBrands() {
 function refreshSummary() {
   const off = listFor("off");
   const toggle = listFor("toggle");
+  const topBrands = selectPopularUsCodes(codes);
   const gap = Number(ui.gapMs.value);
 
   ui.databaseCount.textContent = listFor("all").length.toLocaleString();
@@ -108,9 +109,11 @@ function refreshSummary() {
   ui.toggleCount.textContent = toggle.length.toLocaleString();
 
   ui.offButtonMeta.textContent = `${off.length.toLocaleString()} codes · ${formatDuration(estimateSweepSeconds(off, gap))}`;
+  ui.topBrandsButtonMeta.textContent = `${topBrands.length.toLocaleString()} codes · ${formatDuration(estimateSweepSeconds(topBrands, gap))}`;
   ui.toggleButtonMeta.textContent = `${toggle.length.toLocaleString()} codes · ${formatDuration(estimateSweepSeconds(toggle, gap))}`;
 
   ui.offButton.disabled = !off.length || running;
+  ui.topBrandsButton.disabled = !topBrands.length || running;
   ui.toggleButton.disabled = !toggle.length || running;
   ui.brandSelect.disabled = running || !codes.length;
 }
@@ -277,6 +280,9 @@ async function loadDatabase() {
 }
 
 ui.offButton.addEventListener("click", () => runSweep("off"));
+ui.topBrandsButton.addEventListener("click", () => playEntries(
+  selectPopularUsCodes(codes), "Building top 10 U.S. brands sweep", true,
+));
 ui.toggleButton.addEventListener("click", () => runSweep("toggle"));
 ui.stop.addEventListener("click", stopSweep);
 ui.brandSelect.addEventListener("change", refreshSummary);

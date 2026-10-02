@@ -13,7 +13,9 @@ import {
   estimateSweepSeconds,
   littleEndianValue,
   parseFlipper,
+  POPULAR_US_BRANDS,
   selectCodes,
+  selectPopularUsCodes,
   toSignal,
 } from "../ir-core.js";
 
@@ -97,6 +99,34 @@ test("brand filter includes shared signals and displays that brand's model", () 
   assert.equal(selectCodes(codes, "off", "LG").length, 0);
   assert.equal(estimateSweepSeconds(selectCodes(codes, "off", "LG")), 0);
   assert.equal(selectCodes(codes, "all", "Samsung").length, 2);
+});
+
+test("top ten sweep includes both power actions, shared brands, and one copy of each signal", () => {
+  assert.equal(POPULAR_US_BRANDS.length, 10);
+  const make = (command, action, brand, extra = {}) => ({
+    type: "parsed", protocol: "NEC", address: "01", command,
+    action, brand, name: "Power", ...extra,
+  });
+  const codes = [
+    make("01", "off", "Samsung"),
+    make("02", "off", "Panasonic", {
+      brands: ["Panasonic", "LG"],
+      brandDetails: { LG: { model: "LG model", name: "Off" } },
+    }),
+    make("01", "toggle", "LG"), // Identical signal already sent as OFF.
+    make("03", "toggle", "Vizio"),
+    make("04", "toggle", "Panasonic"),
+    make("05", "off", "Sony"), // Imported after toggles, still sent first.
+  ];
+
+  const selected = selectPopularUsCodes(codes);
+  assert.deepEqual(selected.map(({ action, brand, model }) => [action, brand, model]), [
+    ["off", "Samsung", undefined],
+    ["off", "LG", "LG model"],
+    ["off", "Sony", undefined],
+    ["toggle", "Vizio", undefined],
+  ]);
+  assert.equal(selectPopularUsCodes(codes).length, selected.length);
 });
 
 test("database builder retains shared brands without mixing OFF and toggle", async () => {

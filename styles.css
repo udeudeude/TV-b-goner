@@ -46,7 +46,7 @@ footer a { color: #999; }
   .status-panel { grid-template-columns: 1fr 1fr; }
 }
 
-.transmit-actions { grid-template-columns: 1fr 1fr; }
+.transmit-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .transmit-actions button {
   display: flex;
   flex-direction: column;
@@ -54,6 +54,9 @@ footer a { color: #999; }
   justify-content: center;
   gap: 9px;
   padding: 16px 12px;
+  font-size: clamp(17px, 2.7vw, 25px);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 .transmit-actions button small {
   font: 600 11px/1.25 ui-monospace, monospace;
@@ -63,6 +66,7 @@ footer a { color: #999; }
 .stop-actions { grid-template-columns: 1fr; margin-top: -6px; }
 .stop-actions .stop { min-height: 64px; }
 .toggle-go { background: #d8d8d8; }
+.top-brands-go { background: #e7e7e7; }
 @media (max-width: 520px) {
   .transmit-actions { grid-template-columns: 1fr; }
   .transmit-actions button { min-height: 88px; }
