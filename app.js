@@ -6,6 +6,10 @@ import {
 } from "./ir-core.js?v=brand2";
 
 const $ = (id) => document.getElementById(id);
+const popularUsBrands = [
+  "Samsung", "LG", "Vizio", "TCL", "Hisense", "Sony",
+  "ONN", "Insignia", "Roku", "Philips", "Toshiba", "Sharp",
+];
 const ui = {
   dbStatus: $("dbStatus"),
   brandSelect: $("brandSelect"),
@@ -74,10 +78,22 @@ function refreshBrands() {
   const previous = ui.brandSelect.value;
   const brands = [...new Set(codes.flatMap((code) => code.brands || [code.brand]).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b));
-  ui.brandSelect.replaceChildren(new Option("All brands", ""));
-  for (const brand of brands) {
-    ui.brandSelect.add(new Option(brand.replaceAll("_", " "), brand));
+  const popular = document.createElement("optgroup");
+  popular.label = "Popular in the U.S.";
+  for (const brand of popularUsBrands) {
+    if (brands.includes(brand)) popular.append(new Option(brand.replaceAll("_", " "), brand));
   }
+
+  const alphabetic = document.createElement("optgroup");
+  alphabetic.label = "All brands — A to Z";
+  for (const brand of brands) {
+    alphabetic.append(new Option(brand.replaceAll("_", " "), brand));
+  }
+  ui.brandSelect.replaceChildren(
+    new Option("All brands (full sweep)", ""),
+    ...(popular.childElementCount ? [popular] : []),
+    ...(alphabetic.childElementCount ? [alphabetic] : []),
+  );
   ui.brandSelect.value = brands.includes(previous) ? previous : "";
   ui.brandSelect.disabled = running || !brands.length;
 }
