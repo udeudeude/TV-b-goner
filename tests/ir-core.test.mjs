@@ -10,6 +10,7 @@ import {
   encodeNec,
   encodeSamsung,
   encodeSirc,
+  estimateSweepSeconds,
   littleEndianValue,
   parseFlipper,
   selectCodes,
@@ -94,6 +95,7 @@ test("brand filter includes shared signals and displays that brand's model", () 
 
   assert.deepEqual(selectCodes(codes, "toggle", "LG").map((x) => [x.brand, x.model]), [["LG", "LG model"]]);
   assert.equal(selectCodes(codes, "off", "LG").length, 0);
+  assert.equal(estimateSweepSeconds(selectCodes(codes, "off", "LG")), 0);
   assert.equal(selectCodes(codes, "all", "Samsung").length, 2);
 });
 

@@ -196,6 +196,7 @@ function writeWavHeader(view, channels, dataBytes) {
 
 export function estimateSweepSeconds(entries, gapMs = 140, prePadMs = 80, postPadMs = 40) {
   const signals = entries.map(toSignal).filter(Boolean);
+  if (!signals.length) return 0;
   const signalUs = signals.reduce(
     (sum, signal) => sum + signal.pattern.reduce((part, us) => part + Math.max(0, us), 0),
     0,

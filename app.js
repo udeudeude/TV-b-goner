@@ -3,7 +3,7 @@ import {
   estimateSweepSeconds,
   parseFlipper,
   selectCodes,
-} from "./ir-core.js?v=brand1";
+} from "./ir-core.js?v=brand2";
 
 const $ = (id) => document.getElementById(id);
 const ui = {
