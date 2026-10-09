@@ -1,0 +1,17 @@
+{
+  "name": "TV-b-goner",
+  "short_name": "TV-b-goner",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#090909",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
